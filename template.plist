@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.lukaswerner.mark.server</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>$HOME/go/bin/mark</string>
+        <string>server</string>
+    </array>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>$HOME/go/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+        <key>DYLD_LIBRARY_PATH</key>
+        <string>$HOME/.lib</string>
+    </dict>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/tmp/mark.server.stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/mark.server.stderr.log</string>
+    <key>WorkingDirectory</key>
+    <string>$HOME</string>
+</dict>
+</plist>

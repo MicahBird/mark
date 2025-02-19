@@ -69,7 +69,6 @@ var editCmd = &cobra.Command{
 
 		bookmark.Tags = strings.Split(tags, ",")
 
-
 		err = store.UpdateBookmark(db, original_bookmark, bookmark)
 		if err != nil {
 			log.Fatalln(err.Error())

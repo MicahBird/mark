@@ -60,6 +60,13 @@ BEGIN
     VALUES (new.id, new.url, new.title, new.description, new.tags);
 END;`,
 	},
+	{
+		name: "Server_Keys",
+		definition: `CREATE TABLE IF NOT EXISTS Server_Keys (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    key TEXT NOT NULL UNIQUE
+);`,
+	},
 }
 
 func Open() (*DB, error) {
@@ -187,12 +194,12 @@ func SearchBookmarks(db *DB, query string) ([]Bookmark, error) {
 }
 
 func UpdateBookmark(db *DB, original Bookmark, updated Bookmark) error {
-	_, err := db.Exec(`UPDATE Bookmarks SET 
+	_, err := db.Exec(`UPDATE Bookmarks SET
 		url = ?,
 		title = ?,
 		description = ?,
 		tags = ?
-	WHERE 
+	WHERE
 		url = ?;`,
 		updated.Url,
 		updated.Title,
@@ -202,4 +209,49 @@ func UpdateBookmark(db *DB, original Bookmark, updated Bookmark) error {
 	)
 
 	return err
+}
+
+func AddKey(db *DB, key string) error {
+	_, err := db.Exec("INSERT INTO Server_Keys (key) VALUES (?)", key)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func HasKey(db *DB, key string) (bool, error) {
+	var value string
+	err := db.QueryRow("SELECT key FROM Server_Keys WHERE key = ?", key).Scan(&value)
+	if err != nil || value == "" {
+		return false, err
+	}
+	return true, nil
+}
+
+func GetKeys(db *DB) ([]string, error) {
+	keys := []string{}
+	rows, err := db.Query("SELECT key FROM Server_Keys")
+	if err != nil {
+		return keys, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var key string
+		err := rows.Scan(&key)
+		if err != nil {
+			return keys, err
+		}
+		keys = append(keys, key)
+	}
+
+	return keys, nil
+}
+
+func DeleteKey(db *DB, key string) error {
+	_, err := db.Exec("DELETE FROM Server_Keys WHERE key = ?", key)
+	if err != nil {
+		return err
+	}
+	return nil
 }

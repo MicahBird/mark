@@ -35,6 +35,10 @@ var (
 			Foreground(lipgloss.Color("229")).
 			Background(lipgloss.Color("251"))
 
+	previewModeStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.Color("229")).
+				Background(lipgloss.Color("114"))
+
 	statusBackground = lipgloss.Color("238")
 
 	headerStyle = lipgloss.NewStyle().
@@ -52,8 +56,7 @@ var (
 				Bold(false)
 
 	modalstyle = lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder()).
-			Width(80)
+			Border(lipgloss.RoundedBorder())
 )
 
 type rootAppModel struct {
@@ -72,15 +75,21 @@ func (m rootAppModel) Init() tea.Cmd { return nil }
 
 func (m rootAppModel) updateTable() rootAppModel {
 
+	bmCount := len(m.rows)
+
 	bookmarks, err := store.SearchBookmarks(m.db, m.input.Value())
 	if err != nil {
 		log.Panicln(err)
 		return m
 	}
 
+	if len(bookmarks) == bmCount {
+		return m
+	}
+
 	if m.rowsCount != 0 {
 		m.table.ClearRows()
-		m.table.Data(table.NewStringData())
+		m.table.Data(table.NewStringData()) // BUG: here for clearing idk why but yeah datatype needs setup
 	}
 
 	m.rows = bookmarks
@@ -108,12 +117,15 @@ func (m rootAppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 			}
 		case "esc":
-			if m.mode != NORMAL {
-				m.mode = NORMAL
+			switch m.mode {
+			case SEARCH:
 				m.input.Blur()
-
 				m = m.updateTable()
+			case PREVIEW:
+				break
 			}
+			m.mode = NORMAL
+
 		case " ":
 			if m.mode == NORMAL {
 				m.mode = PREVIEW
@@ -124,7 +136,7 @@ func (m rootAppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			switch m.mode {
 			case NORMAL:
-				// todo open active link
+				// TODO: open active link
 				if m.currentIndex <= m.rowsCount {
 					url := m.rows[m.currentIndex-1].Url
 					browser.OpenURL(url)
@@ -170,18 +182,30 @@ func (m rootAppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m rootAppModel) View() string {
 
+	statusBar := ""
+	switch m.mode {
+	case NORMAL:
+		statusBar = normalModeStyle.Render(" " + string(m.mode) + " ")
+	case SEARCH:
+		statusBar = searchModeStyle.Render(" " + string(m.mode) + " ")
+	case PREVIEW:
+		statusBar = previewModeStyle.Render(" " + string(m.mode) + " ")
+	}
+	statusBar = lipgloss.PlaceHorizontal(m.width, lipgloss.Left, statusBar, lipgloss.WithWhitespaceBackground(statusBackground))
+
 	if m.mode == PREVIEW {
+		textSty := lipgloss.NewStyle().Width(m.width - 4).Align(lipgloss.Left)
 
 		contents := "title: " + m.rows[m.currentIndex-1].Title + "\n"
 		contents += "tags: " + strings.Join(m.rows[m.currentIndex-1].Tags, ", ") + "\n"
 		contents += "url: " + m.rows[m.currentIndex-1].Url + "\n"
-		contents += "desc: \n" + m.rows[m.currentIndex-1].Description
+		contents += "desc: \n" + textSty.Render(m.rows[m.currentIndex-1].Description)
 
-		modal := modalstyle.Render(contents)
+		modal := modalstyle.Width(m.width - 4).Render(contents)
 
 		centered := lipgloss.Place(m.width, m.height, lipgloss.Center, lipgloss.Center, modal)
 
-		return centered
+		return lipgloss.JoinVertical(lipgloss.Center, centered, statusBar)
 	}
 
 	m.table.StyleFunc(func(row, col int) lipgloss.Style {
@@ -196,16 +220,6 @@ func (m rootAppModel) View() string {
 			return lipgloss.NewStyle()
 		}
 	})
-
-	statusBar := ""
-	switch m.mode {
-	case NORMAL:
-		statusBar = normalModeStyle.Render(" " + string(m.mode) + " ")
-	case SEARCH:
-		statusBar = searchModeStyle.Render(" " + string(m.mode) + " ")
-	}
-
-	statusBar = lipgloss.PlaceHorizontal(m.width, lipgloss.Left, statusBar, lipgloss.WithWhitespaceBackground(statusBackground))
 
 	table := lipgloss.PlaceVertical(m.height-2, lipgloss.Top, m.table.Render())
 

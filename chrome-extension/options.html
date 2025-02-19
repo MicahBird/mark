@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Bookmark Sender Settings</title>
+        <style>
+            body {
+                padding: 20px;
+                max-width: 600px;
+                margin: 0 auto;
+                font-family: system-ui, sans-serif;
+            }
+            .container {
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+            }
+            .field {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+            input {
+                padding: 8px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                font-size: 14px;
+            }
+            button {
+                padding: 8px 16px;
+                background: #4285f4;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 14px;
+                max-width: fit-content;
+            }
+            button:hover {
+                background: #3367d6;
+            }
+            #status {
+                color: #666;
+                margin-top: 16px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Bookmark Sender Settings</h2>
+            <div class="field">
+                <label for="tokenInput">API Token:</label>
+                <input
+                    type="password"
+                    id="tokenInput"
+                    placeholder="Enter your API token"
+                />
+            </div>
+            <button id="saveToken">Save Token</button>
+            <div id="status"></div>
+        </div>
+        <script src="options.js"></script>
+    </body>
+</html>

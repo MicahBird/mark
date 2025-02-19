@@ -24,7 +24,7 @@ var description string
 var addCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add a bookmark",
-	Long: `Adds a new bookmark to the bookmark manager. 
+	Long: `Adds a new bookmark to the bookmark manager.
 
 > NOTICE: This method may call out to the network to gather more info about the page
 
@@ -57,10 +57,13 @@ mark add [--tags list,of,seperated,tags] url`,
 		if title == "" {
 			title = fetchTitle(link)
 		}
+		fmt.Println("title", title)
 
 		if description == "" {
 			description = fetchDescription(link)
 		}
+
+		fmt.Println("desc", description)
 
 		bm := store.Bookmark{
 			Url:         link.String(),
@@ -101,6 +104,7 @@ func fetchTitle(u *url.URL) string {
 		return ""
 	}
 	defer resp.Body.Close()
+	fmt.Println("\tstatus", resp.Status)
 	if resp.StatusCode != 200 {
 		return ""
 	}
@@ -112,7 +116,13 @@ func fetchTitle(u *url.URL) string {
 
 	title, exists := doc.Find(`meta[property='og:title']`).Attr("content")
 	if !exists {
-		return strings.TrimSpace(doc.Find("title").Text())
+		fmt.Println("\tog title missing, returning title tag")
+		title := doc.Find("title").Text()
+		if title == "" {
+			fmt.Println("\ttitle tag missing, returning empty string")
+			return ""
+		}
+		return strings.TrimSpace(title)
 	}
 	return strings.TrimSpace(title)
 
@@ -124,6 +134,7 @@ func fetchDescription(u *url.URL) string {
 		return ""
 	}
 	defer resp.Body.Close()
+	fmt.Println("\tstatus", resp.Status)
 	if resp.StatusCode != 200 {
 		return ""
 	}
@@ -133,9 +144,10 @@ func fetchDescription(u *url.URL) string {
 		return ""
 	}
 
-	title, exists := doc.Find(`meta[property='og:description']`).Attr("content")
+	desc, exists := doc.Find(`meta[property='og:description']`).Attr("content")
 	if !exists {
+		fmt.Println("\tog desc missing, returning nothing")
 		return ""
 	}
-	return strings.TrimSpace(title)
+	return strings.TrimSpace(desc)
 }

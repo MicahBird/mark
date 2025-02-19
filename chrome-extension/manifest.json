@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Mark Chrome Extension",
+  "version": "1.0",
+  "description": "Sends page metadata to a bookmarking API",
+  "permissions": ["activeTab", "storage", "contextMenus"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ],
+  "action": {},
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "icons": {
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}
