@@ -171,6 +171,17 @@ func InsertBookmark(db *DB, bookmark Bookmark) (BookmarkId, error) {
 	return BookmarkId(id), err
 }
 
+func GetBookmark(db *DB, url string) (Bookmark, error) {
+	var b Bookmark
+	var tags string
+	err := db.QueryRow("SELECT url, title, description, tags FROM Bookmarks WHERE url = ?", url).Scan(&b.Url, &b.Title, &b.Description, &tags)
+	if err != nil {
+		return b, err
+	}
+	b.Tags = strings.Split(tags, ", ")
+	return b, nil
+}
+
 func SearchBookmarks(db *DB, query string) ([]Bookmark, error) {
 	bookmarks := []Bookmark{}
 	rows, err := db.Query(`SELECT url, title, description, tags FROM Bookmarks_fts WHERE Bookmarks_fts MATCH ?;`, query)

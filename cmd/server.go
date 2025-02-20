@@ -4,6 +4,7 @@ Copyright © 2024 Lukas Werner <me@lukaswerner.com>
 package cmd
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -82,6 +83,22 @@ var serverCmd = &cobra.Command{
 				return
 			}
 			w.WriteHeader(http.StatusNoContent)
+		})))
+
+		http.Handle("GET /api/bookmarks", AuthRequired(db, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			url := r.URL.Query().Get("url")
+
+			bookmarks, err := store.GetBookmark(db, url)
+			if err == sql.ErrNoRows {
+				http.Error(w, "Bookmark not found", http.StatusNotFound)
+				return
+			}
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(bookmarks)
 		})))
 
 		log.Fatal(http.ListenAndServe(":1990", nil))
