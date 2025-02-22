@@ -7,7 +7,6 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 
@@ -27,7 +26,7 @@ var showCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		db, err := store.Open()
 		if err != nil {
-			log.Panicln(err.Error())
+			fmt.Println("unable to open database", err.Error())
 			return
 		}
 		defer db.Close()
@@ -36,7 +35,8 @@ var showCmd = &cobra.Command{
 
 		bookmarks, err := store.SearchBookmarks(db, searchQuery)
 		if err != nil {
-			log.Panicln("unable to search bookmarks", err.Error())
+			fmt.Println("unable to search bookmarks", err.Error())
+			return
 		}
 		if len(bookmarks) == 0 {
 			fmt.Println("found no bookmarks")
@@ -54,7 +54,8 @@ var showCmd = &cobra.Command{
 				if err == huh.ErrUserAborted {
 					return
 				}
-				log.Fatalln(err.Error())
+				fmt.Println("unable to pick bookmark", err.Error())
+				return
 			}
 			bookmarks = []store.Bookmark{bookmarks[pickedIndex]}
 		}

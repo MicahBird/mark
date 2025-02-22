@@ -5,7 +5,6 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/charmbracelet/huh"
@@ -15,30 +14,41 @@ import (
 
 // editCmd represents the edit command
 var editCmd = &cobra.Command{
-	Use:   "edit",
-	Short: "A brief description of your command",
-	Long: ``,
-	Args: cobra.MinimumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {	
+	Use:   "edit [search query]",
+	Short: "Edit a bookmark",
+	Long:  ``,
+	Run: func(cmd *cobra.Command, args []string) {
 		db, err := store.Open()
 		if err != nil {
-			log.Panicln(err.Error())
+			fmt.Println(err.Error())
 			return
 		}
 		defer db.Close()
 
 		searchQuery := strings.Join(args, " ")
+		if searchQuery == "" {
+			err = huh.NewInput().Title("Search query").Value(&searchQuery).Run()
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+			if searchQuery == "" {
+				fmt.Println("no search query provided")
+				return
+			}
+		}
 
 		bookmarks, err := store.SearchBookmarks(db, searchQuery)
 		if err != nil {
-			log.Panicln("unable to search bookmarks", err.Error())
+			fmt.Println("unable to search bookmarks", err.Error())
+			return
 		}
 		if len(bookmarks) == 0 {
 			fmt.Println("found no bookmarks")
 			return
 		}
 
-		if len(bookmarks) != 1 {	
+		if len(bookmarks) != 1 {
 			pickedIndex := 0
 			options := make([]huh.Option[int], len(bookmarks))
 			for i, bookmark := range bookmarks {
@@ -49,7 +59,8 @@ var editCmd = &cobra.Command{
 				if err == huh.ErrUserAborted {
 					return
 				}
-				log.Fatalln(err.Error())
+				fmt.Println(err.Error())
+				return
 			}
 			bookmarks = []store.Bookmark{bookmarks[pickedIndex]}
 		}
@@ -66,12 +77,11 @@ var editCmd = &cobra.Command{
 			huh.NewText().Title("Description").Value(&bookmark.Description),
 		)).Run()
 
-
 		bookmark.Tags = strings.Split(tags, ",")
 
 		err = store.UpdateBookmark(db, original_bookmark, bookmark)
 		if err != nil {
-			log.Fatalln(err.Error())
+			fmt.Println(err.Error())
 			return
 		}
 

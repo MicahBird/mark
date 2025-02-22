@@ -12,13 +12,10 @@ import (
 
 // keysDeleteCmd represents the delete command
 var keysDeleteCmd = &cobra.Command{
-	Use:   "delete",
+	Use:   "delete <key>",
 	Short: "Delete a key",
-	Long: `Pass in the key to delete from the allowed api keys for the local http server
-
-Example:
-mark keys delete <key>`,
-	Args: cobra.ExactArgs(1),
+	Long:  `Pass in the key to delete from the allowed api keys for the local http server`,
+	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		db, err := store.Open()
 		if err != nil {

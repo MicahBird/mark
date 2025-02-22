@@ -23,7 +23,7 @@ var serverCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		db, err := store.Open()
 		if err != nil {
-			log.Fatalln("error occured in opening db: ", err.Error())
+			fmt.Println("error occured in opening db: ", err.Error())
 			return
 		}
 
@@ -63,7 +63,7 @@ var serverCmd = &cobra.Command{
 				return
 			}
 			w.WriteHeader(http.StatusCreated)
-			w.Write([]byte(fmt.Sprintf(`{"id": %d}`, id)))
+			w.Write(fmt.Appendf([]byte{}, `{"id": %d}`, id))
 		})))
 
 		http.Handle("PATCH /api/bookmarks", AuthRequired(db, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

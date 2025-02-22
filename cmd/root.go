@@ -231,8 +231,8 @@ var rootCmd = &cobra.Command{
 	Use:   "mark",
 	Short: "A simple bookmark manager from the commandline",
 	Long: `Mark is a simple bookmark manager that allows you to save and recall bookmarks.
-It also allows you to sync those changes across all your devices using a 
-file sync service. This is sort-of explained the following blog post: 
+It also allows you to sync those changes across all your devices using a
+file sync service. This is sort-of explained the following blog post:
 	https://lukaswerner.com/post/2024-08-13@Sqlite-Local-First`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
@@ -240,7 +240,7 @@ file sync service. This is sort-of explained the following blog post:
 
 		db, err := store.Open()
 		if err != nil {
-			log.Panicln(err)
+			fmt.Println("unable to open database", err.Error())
 			return
 		}
 
@@ -260,8 +260,8 @@ file sync service. This is sort-of explained the following blog post:
 		prog := tea.NewProgram(m, tea.WithAltScreen())
 
 		if _, err := prog.Run(); err != nil {
-			fmt.Println("Error running program:", err)
-			os.Exit(1)
+			fmt.Println("Error running program:", err.Error())
+			return
 		}
 	},
 }

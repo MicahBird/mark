@@ -22,7 +22,7 @@ var description string
 
 // addCmd represents the add command
 var addCmd = &cobra.Command{
-	Use:   "add",
+	Use:   "add <url>",
 	Short: "Add a bookmark",
 	Long: `Adds a new bookmark to the bookmark manager.
 

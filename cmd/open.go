@@ -5,7 +5,6 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/charmbracelet/huh"
@@ -23,7 +22,7 @@ var openCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		db, err := store.Open()
 		if err != nil {
-			log.Panicln(err.Error())
+			fmt.Println(err.Error())
 			return
 		}
 		defer db.Close()
@@ -32,7 +31,8 @@ var openCmd = &cobra.Command{
 
 		bookmarks, err := store.SearchBookmarks(db, searchQuery)
 		if err != nil {
-			log.Panicln("unable to search bookmarks", err.Error())
+			fmt.Println("unable to search bookmarks", err.Error())
+			return
 		}
 		if len(bookmarks) == 0 {
 			fmt.Println("found no bookmarks")
@@ -55,10 +55,15 @@ var openCmd = &cobra.Command{
 			if err == huh.ErrUserAborted {
 				return
 			}
-			log.Fatalln(err.Error())
+			fmt.Println(err.Error())
+			return
 		}
 
-		browser.OpenURL(pickedLink)
+		err = browser.OpenURL(pickedLink)
+		if err != nil {
+			fmt.Println("unable to open url in browser", err.Error())
+			return
+		}
 
 	},
 }
