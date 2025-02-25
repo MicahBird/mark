@@ -68,6 +68,29 @@
             #status {
                 color: #666;
             }
+            .loading {
+                display: none;
+                align-items: center;
+                gap: 8px;
+                color: #666;
+                margin-top: 8px;
+            }
+            .spinner {
+                border: 3px solid #f3f3f3;
+                border-top: 3px solid #3498db;
+                border-radius: 50%;
+                width: 16px;
+                height: 16px;
+                animation: spin 1s linear infinite;
+            }
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
         </style>
     </head>
     <body>
@@ -81,7 +104,25 @@
                 <textarea id="description"></textarea>
             </div>
             <div class="field">
-                <label>Tags</label>
+                <div
+                    style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                    "
+                >
+                    <label>Tags</label>
+                    <button
+                        id="generateTags"
+                        style="padding: 2px 8px; font-size: 12px"
+                    >
+                        Auto-Generate Tags
+                    </button>
+                </div>
+                <div class="loading" id="tagsLoading">
+                    <div class="spinner"></div>
+                    <span>Generating tags...</span>
+                </div>
                 <div class="tags-input" id="tagsContainer">
                     <input
                         type="text"
